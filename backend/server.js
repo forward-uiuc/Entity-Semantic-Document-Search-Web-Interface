@@ -136,7 +136,7 @@ app.get('/getPhysicalDoc/:fileName',function(req,res){
 })
 
 //set port
-app.set('port',(process.env.PORT ||7001));
+app.set('port',(process.env.PORT ||7002));
 
 // Use the body-parser package in our application
 app.use(bodyParser.urlencoded({extended: true}));
