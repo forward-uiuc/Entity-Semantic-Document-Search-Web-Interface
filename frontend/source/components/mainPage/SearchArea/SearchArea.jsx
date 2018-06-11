@@ -478,7 +478,7 @@ class SearchArea extends Component {
 								<Grid.Column width={6}>
                                     <img src={this.baseUrl + "screenshots/" + crypto.createHash('md5').update(item._source.url).digest('hex') + ".png"} style={{width:'100%'}} alt="Image not found" onError="this.onerror=null;this.src='./assets/documentation.png';"/>
 								</Grid.Column>
-                                <Grid.Column width={9}>
+                                <Grid.Column width={10}>
                                     <div key={i} className="ui card padded clustercard raised">
 										<div className="content">
 
