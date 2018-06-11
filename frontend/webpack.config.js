@@ -46,6 +46,13 @@ const config = {
             {
                 test: /\.css$/,
                 loaders: ['style-loader', 'css-loader?-url', 'postcss-loader']
+            },
+
+            {
+                test: /\.(png|svg|jpg|gif)$/,
+                use: [
+                    'file-loader'
+                ]
             }
 
         ]

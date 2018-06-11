@@ -73,17 +73,15 @@ app.get('/search/:username',function(req,res){
 		.then((response)=>{
 			// console.log(JSON.stringify(response.data.hits.hits))
 			res.json(response.data)
-
 		}) .catch(error=>{
 			console.log(error)
-
 	  	});
 });
 
 //add an api endpoint to entity-semantic document search
-app.get('/esdocumentsearch/:username',function(req,res){
-	var query_string = req.params.username;
-	console.log(req.params);
+app.get('/esdocumentsearch/:query',function(req,res){
+	var query_string = req.params.query;
+	// console.log(req.params);
 	// var pattern = username
 
 	/** Qingling Kang's Change **/
@@ -92,36 +90,18 @@ app.get('/esdocumentsearch/:username',function(req,res){
 	query_string = query_string.toLowerCase()
 
 	// var pattern = username
-	console.log(query_string);
+	// console.log(query_string);
 	// query_string = query_string.replaceAll('_entity_','');
 	// let url = 'http://localhost:9200/entity_lucene_dinv_new_multiple/_search_with_clusters?pretty=true';
 	// let url = 'http://localhost:9200/entity_lucene_doc/_search_with_clusters?pretty=true';
-	let url = 'http://localhost:9200/entity_search_cs_departments/_es_document_search?pretty=true';
-	console.log(url)
+	let url = 'http://localhost:9200/test_annotation/_es_document_search?pretty=true';
+	// console.log(url)
 	let data ={
 		'search_request':{
 		    'query': query_string,
 		    'size': 100
 		}
-	}  
-
-
-	// let url = 'http://localhost:9200/entity_lucene/_search_with_clusters?pretty=true';
-	// let data ={
-	// 	'search_request':{
-	// 	    'query':{
-	// 	        "match":{
-	// 	              "_all" : query_string
-	// 	        }
-	// 	    },
-	// 	    'size': 100
-	// 	},
-	// 	'query_hint':"",
-	// 	'field_mapping':{
-	// 		"title":["_source.entityContent", "_source.name", "_source.physicalDoc", "_source.text"]
-	// 	}
-	// }  
-  
+	}
 
 	var header = {
 		'Content-Type': 'application/json'

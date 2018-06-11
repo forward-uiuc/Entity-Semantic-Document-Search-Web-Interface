@@ -10,6 +10,8 @@ import axios from 'axios'
 import IntegrationAutosuggest from './autosuggest.jsx'
 import IntegrationAutosuggestDocument from './autosuggestdocument.jsx'
 
+var crypto = require('crypto');
+
 class SearchArea extends Component {
 	constructor(props) {
 		super(props);
@@ -42,7 +44,7 @@ class SearchArea extends Component {
 			showModal:false,
 
 			//search bar
-			searchbyItem:'entity',
+			searchbyItem:'doc',
 
 			//documentation
 			modalOpen: false,
@@ -55,13 +57,14 @@ class SearchArea extends Component {
 		this.resetComponent = this.resetComponent.bind(this);
 	
 		
-		this.baseUrl = 'http://crow.cs.illinois.edu:7001/';
-		// this.baseUrl = 'httssp://localhost:7001/';
+		//this.baseUrl = 'http://crow.cs.illinois.edu:7001/';
+		 this.baseUrl = 'http://localhost:7001/';
 		this.searchClickHandler = this.searchClickHandler.bind(this);
 		this.ClusterHandler = this.ClusterHandler.bind(this);
 
 		this.showDocumentHandler = this.showDocumentHandler.bind(this);
-		this.phyDocHandler = this.phyDocHandler.bind(this);
+		// Long: No need for physical document handler because we can just point to the real URL
+		//this.phyDocHandler = this.phyDocHandler.bind(this);
 
 		this.closeModal = this.closeModal.bind(this);
 		this.getSearchValue = this.getSearchValue.bind(this);
@@ -334,7 +337,7 @@ class SearchArea extends Component {
 	  		});
 	}
 
-	phyDocHandler(value,text,event){
+    phyDocHandler(value,text,event){
 
 		console.log("value",value)
 		let fileName = value.substr(0,value.indexOf('.')-0);
@@ -453,7 +456,7 @@ class SearchArea extends Component {
 									<div> <a href={clusterExamples[i]._source.url}>
 							    	{clusterExamples[i]._source.url} </a> </div>
 							    	<div> {clusterExamples[i]._source.title} </div>
-	 								<span>{clusterExamples[i]._source.text.substr(0,200)}</span>
+	 								/*<span>{clusterExamples[i]._source.text.substr(0,200)}</span>*/
 	 							</div>
 								<div className="meta">score:&nbsp;{item.score} (from {item.document.length} relevant web pages) </div> 					 			
  							</div>
@@ -468,26 +471,33 @@ class SearchArea extends Component {
 			
    					<div className="docblock">
 				 	{output.map((item,i)=> 
-					 	<div key={i} className="ui card padded clustercard raised">
-							<div className="content">
-							
-								<div className="ui top left attached label"><a href={item._source.url}>{item._source.url}</a></div>
-								
-								<div className="header docheader">
-									{item._source.title}
-								</div>
-								<div className="description resultText">
-									{/*
-									<span>{item._source.text.substr(0,item._source.charOffset)}</span>
-	 							 	<span className="highlight">{item._source.text.substr(item._source.charOffset,item._source.name.length)}</span>
-	 							 	<span>{item._source.text.substr(parseInt(item._source.charOffset)+parseInt(item._source.name.length))}</span>
-	 								<span><a onClick={this.phyDocHandler.bind(this,item._source.name,item._source.text)}> read more..</a></span>
-									*/}
-	 								<span>{item._source.text.substr(0,200)}</span>
-	 							</div>
-								<div className="meta">score:&nbsp;{item._score}</div>
-							</div>
-						</div>
+
+							<Grid columns='equal'>
+								<Grid.Column width={5}>
+                                    <img src={"./assets/screenshots/" + crypto.createHash('md5').update(item._source.url).digest('hex') + ".png"} alt="Image not found" onError="this.onerror=null;this.src='./assets/documentation.png';"/>
+								</Grid.Column>
+                                <Grid.Column width={10}>
+                                    <div key={i} className="ui card padded clustercard raised">
+										<div className="content">
+
+											<div className="ui top left attached label"><a href={item._source.url}>{item._source.url}</a></div>
+											<div className="header docheader">
+												{item._source.title}
+											</div>
+											<div className="description resultText">
+												{/*
+										<span>{item._source.text.substr(0,item._source.charOffset)}</span>
+										<span className="highlight">{item._source.text.substr(item._source.charOffset,item._source.name.length)}</span>
+										<span>{item._source.text.substr(parseInt(item._source.charOffset)+parseInt(item._source.name.length))}</span>
+										<span><a onClick={this.phyDocHandler.bind(this,item._source.name,item._source.text)}> read more..</a></span>
+										*/}
+												{/* <span>{item._source.text.substr(0,200)}</span>*/}
+											</div>
+											<div className="meta">score:&nbsp;{item._score}</div>
+										</div>
+                                    </div>
+                                </Grid.Column>
+							</Grid>
 					)}
 				 	{phyDoc}
 				 	</div>
@@ -520,7 +530,8 @@ class SearchArea extends Component {
 							<i aria-hidden="true" className="search icon"></i>
 							Search
 						</button>
-						<Dropdown floating labeled button className='icon' text='Choose Search Type'>
+
+						{/*<Dropdown floating labeled button className='icon' text='Choose Search Type'>
 						    <Dropdown.Menu>
 							    <Dropdown.Item name='entity' active={searchbyItem === 'entity'} onClick={this.handleMenuItemClick} >
 							    	Entity Search
@@ -529,7 +540,7 @@ class SearchArea extends Component {
 							    	Entity-semantic Document Search
 							    </Dropdown.Item>
 						    </Dropdown.Menu>
-						</Dropdown>	
+						</Dropdown>*/}
 						{/*showDocument ?
 							(<Button className="clusterbutton" onClick={this.showDocumentHandler} disabled={searchbyItem === 'doc'}>
 								Hide Document
@@ -661,8 +672,8 @@ class SearchArea extends Component {
 		return(
 			<div className = "SearchArea">
 				{searchBar}
+                {documentation}
 				{suggestInput}
-				{documentation}
 				{
 					hits.length != 0 ? 
 					    ( 
@@ -693,11 +704,11 @@ class SearchArea extends Component {
 								</Container>
 								:
 								<Grid.Column width={16}>
-									<div className="ui card resultcard">
+                                    <div className="ui card resultcard">
+                                        <div>Found {output.length} relevant documents</div>
+                                    </div>
+									<div className="ui resultcard">
 										<div className="content ">
-				 							<div className="header resultheader">
-				 								<Header as='h2'>Found {output.length} relevant documents</Header>
-				 							</div>
 				 							 {DocumentResult}
 				 						</div>
 				 					</div>	

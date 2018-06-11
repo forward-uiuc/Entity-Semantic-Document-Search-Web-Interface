@@ -20,3 +20,7 @@ src/main/config/license.xml
 # eclipse
 bin/
 out/
+
+# npm
+backend/node_modules/
+frontend/node_modules/

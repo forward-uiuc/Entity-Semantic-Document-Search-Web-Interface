@@ -15,7 +15,7 @@
     "express": "^4.16.2",
     "file-system": "^2.2.2",
     "mongoose": "^4.12.1",
-    "nodemon": "^1.12.1",
-    "request": "^2.83.0"
+    "nodemon": "^1.17.5",
+    "request": "^2.87.0"
   }
 }
