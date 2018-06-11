@@ -136,12 +136,13 @@ app.get('/getPhysicalDoc/:fileName',function(req,res){
 })
 
 //set port
-app.set('port',(process.env.PORT ||7002));
+app.set('port',(process.env.PORT ||3000));
 
 // Use the body-parser package in our application
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(express.static(__dirname + "/staticFiles"));
+app.use(express.static("public"));
 
 
 // Spin up the server
