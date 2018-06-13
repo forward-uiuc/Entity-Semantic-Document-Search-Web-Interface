@@ -16,7 +16,6 @@ class Home extends Component {
 		return(
 			<Router>
 				<div>
-					
 					<Route path='/entitylucene/' component={PageLayout} />				
 				</div>
 			</Router>

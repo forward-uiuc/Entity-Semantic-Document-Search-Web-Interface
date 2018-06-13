@@ -59,8 +59,8 @@ class SearchArea extends Component {
 		this.resetComponent = this.resetComponent.bind(this);
 	
 		
-		this.baseUrl = 'http://crow.cs.illinois.edu:3000/';
-		//this.baseUrl = 'http://localhost:3000/';
+		//this.baseUrl = 'http://crow.cs.illinois.edu:3000/';
+		this.baseUrl = 'http://localhost:3000/';
 		this.searchClickHandler = this.searchClickHandler.bind(this);
 		this.ClusterHandler = this.ClusterHandler.bind(this);
 
