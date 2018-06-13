@@ -111,7 +111,7 @@ class SearchBar extends Component {
 						<input className="prompt" type='text' placeholder='Search...' onChange={this.inputChangeHandler} ></input>
 						
 							<button className="ui icon button" role="button">
-								<Link to={{pathname:'/entitylucene/query/'}}>
+								<Link to={{pathname:'/query/'}}>
 
 								<i aria-hidden="true" className="search icon"></i>
 								</Link>

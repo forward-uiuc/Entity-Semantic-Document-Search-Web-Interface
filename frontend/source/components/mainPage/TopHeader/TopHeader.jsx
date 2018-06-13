@@ -11,7 +11,7 @@ class TopHeader extends Component {
     render() {
         return (
             <div className="Header">
-                <Link to={{pathname:'/entitylucene/'}}>
+                <Link to={{pathname:'/'}}>
                     <div className="header">
                         <span className="highlighter"> Forward </span>
                         <span>Search</span>
