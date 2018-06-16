@@ -19,7 +19,7 @@ class SearchArea extends Component {
 		super(props);
 		this.state ={
 			searchEntity:'',
-			searchConditionForDoc:'',
+			searchConditionsForDoc:[""],
 			cluster:[],
 			hits:[],
 
@@ -59,8 +59,8 @@ class SearchArea extends Component {
 		this.resetComponent = this.resetComponent.bind(this);
 	
 		
-		this.baseUrl = 'http://crow.cs.illinois.edu:1720/';
-		//this.baseUrl = 'http://localhost:3000/';
+		//this.baseUrl = 'http://crow.cs.illinois.edu:1720/';
+		this.baseUrl = 'http://localhost:1720/';
 		this.searchClickHandler = this.searchClickHandler.bind(this);
 		this.ClusterHandler = this.ClusterHandler.bind(this);
 
@@ -70,7 +70,6 @@ class SearchArea extends Component {
 
 		this.closeModal = this.closeModal.bind(this);
 		this.getSearchValue = this.getSearchValue.bind(this);
-		this.getSearchDocValue = this.getSearchDocValue.bind(this);
 
 		this.handleMenuItemClick = this.handleMenuItemClick.bind(this);
 
@@ -95,8 +94,9 @@ class SearchArea extends Component {
 		this.setState({ searchEntity: value });
 	}
 
-	handleUpdateValueForDoc(value) {
-		this.setState({ searchConditionForDoc: value });
+	handleUpdateValueForDoc(values) {
+		console.log(values);
+		this.setState({ searchConditionsForDoc: values });
 	}
 
 	handleMenuItemClick(e, { name }){
@@ -110,16 +110,6 @@ class SearchArea extends Component {
 		})
 
 	}
-
-	getSearchDocValue(value){
-		// console.log(value)
-		this.setState({
-			searchConditionForDoc:value
-		})
-
-	}
-
-
 
 	//show more document results when click the clustercard 
 	ClusterHandler(index,name,event){
@@ -203,8 +193,6 @@ class SearchArea extends Component {
 			output:[],
 			searchEntity:event.target.value,
 			activeLabel: [true],
-
-
 		})
 
 		event.preventDefault();
@@ -214,7 +202,7 @@ class SearchArea extends Component {
 		// console.log(event.target.value)
 		this.setState({
 			output:[],
-			searchConditionForDoc:event.target.value,
+			searchConditionsForDoc:event.target.value,
 			activeLabel: [true],
 
 
@@ -229,11 +217,9 @@ class SearchArea extends Component {
 		this.handleUpdateValue(value);
 	}
 
-	handleExampleQueryForDoc(value,event){
-		let tmp = value.split(' asdf ')
-		// this.getSearchValue(value)
-		this.handleUpdateValue(tmp[0]);
-		this.handleUpdateValueForDoc(tmp[1]);
+	handleExampleQueryForDoc(type_subs, kw_sub, event){
+		this.handleUpdateValue(kw_sub);
+		this.handleUpdateValueForDoc(type_subs);
 	}
 
 	searchClickHandler(event){
@@ -243,7 +229,7 @@ class SearchArea extends Component {
 
 		let current_url = this.baseUrl + "search/" + entity;
 		if (this.state.searchbyItem !== 'entity') {
-			entity = this.state.searchEntity + " " + this.state.searchConditionForDoc
+			entity = this.state.searchEntity + " " + this.state.searchConditionsForDoc.join(" ");
 			current_url = this.baseUrl + "esdocumentsearch/" + entity;
 		}
 
@@ -255,18 +241,13 @@ class SearchArea extends Component {
 		console.log(current_url);
 		//current_url = current_url.split('').join('');
 		//console.log(current_url);
-		console.log("Hello")
 
 		axios.get(current_url)
 			.then((response)=>{
-				console.log("How are you")
-				console.log(response.data);
-				console.log("cluster");
+				// console.log(response.data);
 				let cluster = response.data.clusters;
 				let hits = response.data.hits.hits;
 				let output = [];
-				let documentName =[];
-				console.log("test")
 				if (cluster.length > 0) {
 					for(let i = 0; i  < cluster.length; i++){
 						for(let j = 0; j < hits.length;j++){
@@ -292,50 +273,33 @@ class SearchArea extends Component {
 						}
 					}
 				} else {
-					console.log('is it running here?')
 					for(let j = 0; j < hits.length;j++){					
 						output.push(hits[j])
 					}
 				}
-				console.log("test2")
-				
-				// console.log("trstint",documentName[0])
-				// console.log("output",output)
-
-				// console.log(response.data.hits.hits);
-				// console.log(response.data.clusters);
-
 
 				this.setState({
-					currentEntity:'',
-					cluster: response.data.clusters,
+					//currentEntity:'',
+					//cluster: response.data.clusters,
 					hits: response.data.hits.hits,
 					output: output,
-					clusterExamples:output,
-					// documentName:documentName
-					
-				})
+					//clusterExamples:output,
 
-				console.log("fine until")
-
-				console.log("set state is okay")
+				});
 
 				if(response.data.hits.total === 0){
-					console.log("Get empty result")
+					// console.log("Get empty result")
 					this.setState({
 						emptyResult:true
 					})
 				}
-
-				console.log("set empty is okay")
 
 				// console.log(response.data.clusters);
 				// console.log("hits", this.hits);
 				// console.log(response.data.hits.hits);
 			})
 			.catch(error=>{
-				console.log(error)
-
+				console.log(error);
 	  		});
 	}
 
@@ -428,7 +392,7 @@ class SearchArea extends Component {
 
 		 </Modal>
 
-   		)	
+   		);
 
    		let EntityResult =(
    			<div className="resultcard1">
@@ -467,19 +431,19 @@ class SearchArea extends Component {
 					)}
 				</div>
 			</div>
-		)
+		);
 
    		let DocumentResult=(
 			
    					<div className="docblock">
 				 	{output.map((item,i)=> 
 
-							<Grid columns='equal'>
+							<Grid key={i} columns='equal'>
 								<Grid.Column width={6}>
-                                    <img src={this.baseUrl + "screenshots/" + crypto.createHash('md5').update(item._source.url).digest('hex') + ".png"} style={{width:'100%'}} alt="Image not found" onError="this.onerror=null;this.src='./assets/documentation.png';"/>
+                                    <img src={this.baseUrl + "screenshots/" + crypto.createHash('md5').update(item._source.url).digest('hex') + ".png"} style={{width:'100%'}} alt="Image not found"/>
 								</Grid.Column>
                                 <Grid.Column width={10}>
-                                    <div key={i} className="ui card padded clustercard raised">
+                                    <div className="ui card padded clustercard raised">
 										<div className="content">
 
 											<div className="ui top left attached label"><a href={item._source.url}>{item._source.url}</a></div>
@@ -503,7 +467,7 @@ class SearchArea extends Component {
 					)}
 				 	{phyDoc}
 				 	</div>
-   		)
+   		);
 
    		let searchBar = (
    			<Container className="searchbar">
@@ -519,10 +483,10 @@ class SearchArea extends Component {
 		     		(
 		     		<Grid.Column width={9}>
 		     			<div> Describe page type: </div>
-		     			<IntegrationAutosuggest getSearchValue={this.getSearchValue} onEnter={this.searchClickHandler} onUpdateValue={this.handleUpdateValue} searchValue={this.state.searchEntity} />
+                        <IntegrationAutosuggestDocument onEnter={this.searchClickHandler} onUpdateValue={this.handleUpdateValueForDoc} searchValues={this.state.searchConditionsForDoc} />
 		     		
 		     			<div> Describe semantic conditions: </div>
-		     			<IntegrationAutosuggestDocument getSearchValue={this.getSearchDocValue} onEnter={this.searchClickHandler} onUpdateValue={this.handleUpdateValueForDoc} searchValue={this.state.searchConditionForDoc} />
+                        <IntegrationAutosuggest getSearchValue={this.getSearchValue} onEnter={this.searchClickHandler} onUpdateValue={this.handleUpdateValue} searchValue={this.state.searchEntity} />
 		     		</Grid.Column>
 		     		)}
 		     		
@@ -555,7 +519,7 @@ class SearchArea extends Component {
 					</Grid.Column>
 				</Grid>
 			</Container>
-   		)
+   		);
 
    		let suggestInput = (searchbyItem === 'entity')?(
 
@@ -590,7 +554,7 @@ class SearchArea extends Component {
 						      <Grid.Column width={5}>
 						      	 	<Header as='h4' 
 						      	 	 		color='teal'
-						      	 	 		onClick={this.handleExampleQuery.bind(this,"	#professor #sponsor_agency")}>
+						      	 	 		onClick={this.handleExampleQuery.bind(this,"#professor #sponsor_agency")}>
 						      	 	 		#professor #sponsor_agency
 						      	 	</Header>
 						      </Grid.Column>
@@ -615,12 +579,12 @@ class SearchArea extends Component {
 					      	<Grid.Column>
 					       		<Header as='h4' 
 					       				color='red'
-					       				onClick={this.handleExampleQueryForDoc.bind(this,"@near ( #professor #phone #topic ) asdf @near ( interests vision )")}>
-					       				Search for professor home pages with interest in computer vision
+					       				onClick={this.handleExampleQueryForDoc.bind(this,["@near ( #person #email )", "@near ( #person #phone )"], "@near ( data mining )")}>
+					       				Search for professor home pages with interest in data mining
 					       		</Header> 
 					     	</Grid.Column>
 					    </Grid.Row>
-						<Grid.Row>
+						<Grid.Row className="example">
 					      	<Grid.Column>
 								<Header as='h4' color='orange' 
 										onClick={this.handleExampleQueryForDoc.bind(this,"@near ( #professor #phone #topic ) asdf @contains ( biology )")}>
@@ -628,7 +592,7 @@ class SearchArea extends Component {
 								</Header>  						       		
 					      	</Grid.Column>
 					    </Grid.Row>
-					    <Grid.Row>
+					    <Grid.Row className="example">
 						      <Grid.Column>
 						      	 	<Header as='h4' 
 						      	 	 		color='teal'
@@ -637,13 +601,12 @@ class SearchArea extends Component {
 						      	 	</Header>
 						      </Grid.Column>
 						</Grid.Row>
-						<Grid.Row>
+						<Grid.Row className="example">
 						      <Grid.Column>
 						       		<Header as='h4' 
 						       				color='blue'
-						       				onClick={this.handleExampleQueryForDoc.bind(this,"@contains ( exam #professor ) @nears ( #number hours ) asdf @contains ( language processing )")}
-						       				>
-						       				Search for CS courses related to Language Processing
+						       				onClick={this.handleExampleQueryForDoc.bind(this,["@near ( #person #email ) @nears ( #number hours )"], "@contains ( machine learning )")}>
+											Search for CS courses related to Machine Learning
 						       		</Header>
 						      </Grid.Column>						      		
 						</Grid.Row>
@@ -669,7 +632,7 @@ class SearchArea extends Component {
         </Modal.Actions>
       </Modal>
    			</Container>
-   		)
+   		);
 
 		return(
 			<div className = "SearchArea">

@@ -76,7 +76,7 @@ function renderSuggestionsContainer(options) {
 }
 
 function getSuggestionValue(suggestion) {
-  console.log("suggestion.label",suggestion.label)
+  // console.log("suggestion.label",suggestion.label)
   // let addentity = '#_entity_' + suggestion.label.substr(1).split(' ').join('_').toLowerCase()
   // // console.log("front", frontvalue)
   // let query = frontvalue + addentity
@@ -153,12 +153,13 @@ class IntegrationAutosuggestDocument extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: '',
-      suggestions: [],
+        values: [],
+        suggestions: [],
     }
     this.handleSuggestionsFetchRequested = this.handleSuggestionsFetchRequested.bind(this);
     this.handleSuggestionsClearRequested = this.handleSuggestionsClearRequested.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.addInputBox = this.addInputBox.bind(this);
   }
 
   handleSuggestionsFetchRequested({ value }) {
@@ -175,44 +176,61 @@ class IntegrationAutosuggestDocument extends React.Component {
   };
 
   handleChange (event, { newValue }) {
+    let tmp =  [ ...this.state.values ];
+    let id = event.target.id.split("-");
+    // console.log(id[id.length-1]);
+    tmp[Number(id[id.length-1])] = newValue;
     this.setState({
-      value: newValue,
+        values: tmp,
     });
-    this.props.onUpdateValue(newValue)
-    // this.props.getSearchValue(newValue)
-   // console.log("newValue ", newValue);
-
+    this.props.onUpdateValue(tmp);
   };
 
+  addInputBox (event) {
+      let tmp =  [ ...this.state.values ];
+      tmp.push("");
+      this.setState({
+          values: tmp,
+      });
+      this.props.onUpdateValue(tmp);
+  }
+
   render() {
-    const { classes, onEnter } = this.props;
+    const { classes, onEnter, searchValues } = this.props;
+    const inputBoxes = [];
+    this.state.values = searchValues;
+    for (var i = 0; i < this.state.values.length; i++) {
+      inputBoxes.push(<Autosuggest
+          key={i}
+          theme={{
+              container: classes.container,
+              suggestionsContainerOpen: classes.suggestionsContainerOpen,
+              suggestionsList: classes.suggestionsList,
+              suggestion: classes.suggestion,
+          }}
+          renderInputComponent={renderInput}
+          suggestions={this.state.suggestions}
+          onSuggestionsFetchRequested={this.handleSuggestionsFetchRequested}
+          onSuggestionsClearRequested={this.handleSuggestionsClearRequested}
+          renderSuggestionsContainer={renderSuggestionsContainer}
+          getSuggestionValue={getSuggestionValue}
+          renderSuggestion={renderSuggestion}
+          inputProps={{
+              onEnter: onEnter,
+              autoFocus: true,
+              classes,
+              placeholder: 'Type keywords or #entity or both here',
+              value: searchValues[i],
+              onChange: this.handleChange,
+              id: "es-input-"+i,
+          }}
+      />)
+    }
     
     return (
       <span>
-      <Autosuggest
-        theme={{
-          container: classes.container,
-          suggestionsContainerOpen: classes.suggestionsContainerOpen,
-          suggestionsList: classes.suggestionsList,
-          suggestion: classes.suggestion,
-        }}
-        renderInputComponent={renderInput}
-        suggestions={this.state.suggestions}
-        onSuggestionsFetchRequested={this.handleSuggestionsFetchRequested}
-        onSuggestionsClearRequested={this.handleSuggestionsClearRequested}
-        renderSuggestionsContainer={renderSuggestionsContainer}
-        getSuggestionValue={getSuggestionValue}
-        renderSuggestion={renderSuggestion}
-        inputProps={{
-          onEnter: onEnter,
-          autoFocus: true,
-          classes,
-          placeholder: 'Type keywords or #entity or both here',
-          value: this.props.searchValue,
-          onChange: this.handleChange,
-        }}
-
-      />
+          {inputBoxes}
+          <div><a href="#" onClick={this.addInputBox}>Add Another Input Box</a><br/><br/></div>
       </span>
     );
   }
