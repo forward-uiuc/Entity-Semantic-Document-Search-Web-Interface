@@ -230,7 +230,7 @@ class IntegrationAutosuggestDocument extends React.Component {
     return (
       <span>
           {inputBoxes}
-          <div><a href="#" onClick={this.addInputBox}>Add Another Input Box</a><br/><br/></div>
+          <div><a href="#" onClick={this.addInputBox}>Describe more info about page type</a><br/><br/></div>
       </span>
     );
   }

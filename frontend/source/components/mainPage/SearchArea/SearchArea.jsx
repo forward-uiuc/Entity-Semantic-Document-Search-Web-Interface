@@ -19,7 +19,7 @@ class SearchArea extends Component {
 		super(props);
 		this.state ={
 			searchEntity:'',
-			searchConditionsForDoc:[""],
+			searchConditionsForDoc:[],
 			cluster:[],
 			hits:[],
 
@@ -77,6 +77,8 @@ class SearchArea extends Component {
 		this.handleExampleQueryForDoc = this.handleExampleQueryForDoc.bind(this);
 		this.handleUpdateValue = this.handleUpdateValue.bind(this);
 		this.handleUpdateValueForDoc = this.handleUpdateValueForDoc.bind(this);
+
+        this.handleClickingMoreLikeThis = this.handleClickingMoreLikeThis.bind(this);
 
 		this.handleOpen = this.handleOpen.bind(this);
 		this.handleClose = this.handleClose.bind(this);
@@ -222,6 +224,30 @@ class SearchArea extends Component {
 		this.handleUpdateValueForDoc(type_subs);
 	}
 
+	handleClickingMoreLikeThis(event) {
+		var selected = []
+		var recs = document.getElementsByClassName("es-more-like-this");
+		for (var i = 0; i < recs.length; i++) {
+            let checkedBox = recs[i].getElementsByTagName("input")[0];
+            if (checkedBox.checked) {
+				selected.push(checkedBox.name);
+			}
+		}
+		console.log(selected);
+        let fileUrl = this.baseUrl+ "inferPageType/" + selected.join("_")
+        axios.get(fileUrl)
+            .then((response)=>{
+                let queries = response.data;
+                console.log(queries);
+                this.setState({
+                    searchConditionsForDoc: this.state.searchConditionsForDoc.concat(queries),
+                })
+            })
+            .catch(error =>{
+                console.log(error)
+            })
+	}
+
 	searchClickHandler(event){
 
 		
@@ -229,7 +255,7 @@ class SearchArea extends Component {
 
 		let current_url = this.baseUrl + "search/" + entity;
 		if (this.state.searchbyItem !== 'entity') {
-			entity = this.state.searchEntity + " " + this.state.searchConditionsForDoc.join(" ");
+			entity = "@contains ( " + this.state.searchEntity.trim() + " ) " + this.state.searchConditionsForDoc.join(" ");
 			current_url = this.baseUrl + "esdocumentsearch/" + entity;
 		}
 
@@ -460,6 +486,10 @@ class SearchArea extends Component {
 												{/* <span>{item._source.text.substr(0,200)}</span>*/}
 											</div>
 											<div className="meta">score:&nbsp;{item._score}</div>
+											<div className="meta es-more-like-this">
+                                                <input type="checkbox" name={crypto.createHash('md5').update(item._source.url).digest('hex')}/>
+                                                <a href="#" onClick={this.handleClickingMoreLikeThis} className="es-more-like-this-btn"> More Like This </a>
+											</div>
 										</div>
                                     </div>
                                 </Grid.Column>
@@ -482,11 +512,14 @@ class SearchArea extends Component {
 		     		):
 		     		(
 		     		<Grid.Column width={9}>
-		     			<div> Describe page type: </div>
-                        <IntegrationAutosuggestDocument onEnter={this.searchClickHandler} onUpdateValue={this.handleUpdateValueForDoc} searchValues={this.state.searchConditionsForDoc} />
-		     		
-		     			<div> Describe semantic conditions: </div>
+                        <div> Describe the target page by keywords and entities: </div>
                         <IntegrationAutosuggest getSearchValue={this.getSearchValue} onEnter={this.searchClickHandler} onUpdateValue={this.handleUpdateValue} searchValue={this.state.searchEntity} />
+
+						{(this.state.searchConditionsForDoc.length > 0)?
+							(<div> Describe the type of target page: </div>):
+							(<div></div>)
+						}
+                        <IntegrationAutosuggestDocument onEnter={this.searchClickHandler} onUpdateValue={this.handleUpdateValueForDoc} searchValues={this.state.searchConditionsForDoc} />
 		     		</Grid.Column>
 		     		)}
 		     		
@@ -579,7 +612,7 @@ class SearchArea extends Component {
 					      	<Grid.Column>
 					       		<Header as='h4' 
 					       				color='red'
-					       				onClick={this.handleExampleQueryForDoc.bind(this,["@near ( #person #email )", "@near ( #person #phone )"], "@near ( data mining )")}>
+					       				onClick={this.handleExampleQueryForDoc.bind(this,["@near ( #person #email )", "@near ( #person #phone )"], "#person data mining")}>
 					       				Search for professor home pages with interest in data mining
 					       		</Header> 
 					     	</Grid.Column>
@@ -587,7 +620,7 @@ class SearchArea extends Component {
 						<Grid.Row className="example">
 					      	<Grid.Column>
 								<Header as='h4' color='orange' 
-										onClick={this.handleExampleQueryForDoc.bind(this,"@near ( #professor #phone #topic ) asdf @contains ( biology )")}>
+										onClick={this.handleExampleQueryForDoc.bind(this,["@near ( #professor #phone #topic )"], "#person biology")}>
 										Search for CS professor home pages with work related to biology domain
 								</Header>  						       		
 					      	</Grid.Column>
@@ -596,7 +629,7 @@ class SearchArea extends Component {
 						      <Grid.Column>
 						      	 	<Header as='h4' 
 						      	 	 		color='teal'
-						      	 	 		onClick={this.handleExampleQueryForDoc.bind(this,"@contains ( hours #professor ) asdf @contains ( mining )")}>
+						      	 	 		onClick={this.handleExampleQueryForDoc.bind(this,["@contains ( hours #professor )"], "mining")}>
 						      	 	 		Search for CS courses related to data mining
 						      	 	</Header>
 						      </Grid.Column>
@@ -605,7 +638,7 @@ class SearchArea extends Component {
 						      <Grid.Column>
 						       		<Header as='h4' 
 						       				color='blue'
-						       				onClick={this.handleExampleQueryForDoc.bind(this,["@near ( #person #email ) @nears ( #number hours )"], "@contains ( machine learning )")}>
+						       				onClick={this.handleExampleQueryForDoc.bind(this,["@near ( #person #email )", "@near ( #number hours )"], "machine learning")}>
 											Search for CS courses related to Machine Learning
 						       		</Header>
 						      </Grid.Column>						      		

@@ -135,6 +135,14 @@ app.get('/getPhysicalDoc/:fileName',function(req,res){
 	
 })
 
+//add an api to read the physical doc files
+app.get('/inferPageType/:fileNames',function(req,res){
+    var str = req.params.fileNames;
+    var fileNames = str.split("_");
+    var queries = ["@near ( #professor #email champaign)"];
+    res.send(queries);
+});
+
 //set port
 app.set('port',(process.env.PORT ||1720));
 
