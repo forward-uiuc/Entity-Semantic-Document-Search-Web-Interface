@@ -203,7 +203,7 @@ class IntegrationAutosuggestDocument extends React.Component {
             inputBoxes.push(
                 <tr key={i}>
                     <td>
-                        <input type="checkbox" name={"filter-" + i}/>
+                        <input type="checkbox" name={"filter-" + i} defaultChecked/>
                     </td>
                     <td>
                         <Autosuggest

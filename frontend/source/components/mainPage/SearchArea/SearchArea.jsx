@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import _ from 'lodash'
 import styles from './SearchArea.scss';
 import TextField from 'material-ui/TextField';
-import { Button, Icon, Input,Select,Form,Radio,Grid, Modal, Header,Action,Label,Segment, Container,Dropdown} from 'semantic-ui-react'
+import { Button, Icon, Input,Select,Form,Radio,Grid, Modal, Header,Action,Label,Segment, Container,Dropdown, Menu, Sticky, Sidebar, SidebarPushable, SidebarPusher} from 'semantic-ui-react'
 // import SearchList from './SearchList.jsx' 
 import ReactScrollableList from 'react-scrollable-list'
 import axios from 'axios'
@@ -47,6 +47,7 @@ class SearchArea extends Component {
 
 			//search bar
 			searchbyItem:'doc',
+            examplePages:[],
 
 			//documentation
 			modalOpen: false,
@@ -59,8 +60,8 @@ class SearchArea extends Component {
 		this.resetComponent = this.resetComponent.bind(this);
 	
 		
-		this.baseUrl = 'http://crow.cs.illinois.edu:1720/';
-		// this.baseUrl = 'http://localhost:1720/';
+		//this.baseUrl = 'http://crow.cs.illinois.edu:1720/';
+		this.baseUrl = 'http://localhost:1720/';
 		this.searchClickHandler = this.searchClickHandler.bind(this);
 		this.ClusterHandler = this.ClusterHandler.bind(this);
 
@@ -77,8 +78,6 @@ class SearchArea extends Component {
 		this.handleExampleQueryForDoc = this.handleExampleQueryForDoc.bind(this);
 		this.handleUpdateValue = this.handleUpdateValue.bind(this);
 		this.handleUpdateValueForDoc = this.handleUpdateValueForDoc.bind(this);
-
-        this.handleClickingMoreLikeThis = this.handleClickingMoreLikeThis.bind(this);
 
 		this.handleOpen = this.handleOpen.bind(this);
 		this.handleClose = this.handleClose.bind(this);
@@ -224,17 +223,46 @@ class SearchArea extends Component {
 		this.handleUpdateValueForDoc(type_subs);
 	}
 
-	handleClickingMoreLikeThis(event) {
-		var selected = []
-		var recs = document.getElementsByClassName("es-more-like-this");
-		for (var i = 0; i < recs.length; i++) {
-            let checkedBox = recs[i].getElementsByTagName("input")[0];
-            if (checkedBox.checked) {
-				selected.push(checkedBox.name);
-			}
-		}
-		console.log(selected);
-        let fileUrl = this.baseUrl+ "inferPageType/" + selected.join("_")
+	handleClickingMoreLikeThis(imgSrc, serFile, url, event) {
+		// var selected = []
+		// var recs = document.getElementsByClassName("es-more-like-this");
+		// for (var i = 0; i < recs.length; i++) {
+         //    let checkedBox = recs[i].getElementsByTagName("input")[0];
+         //    if (checkedBox.checked) {
+		// 		selected.push(checkedBox.name);
+		// 	}
+		// }
+		console.log(imgSrc);
+		console.log(serFile);
+		console.log(url);
+		console.log(event.target.checked);
+		let tmp = [];
+		if (event.target.checked) {
+            tmp = [...this.state.examplePages];
+            tmp.push({"img":imgSrc,"ser":serFile,"url":url});
+        } else {
+            tmp = [];
+            for (var i = 0; i < this.state.examplePages.length; i++) {
+                if (this.state.examplePages[i].url != url) {
+                    tmp.push(this.state.examplePages[i]);
+                }
+            }
+        }
+        this.setState({
+            examplePages: tmp,
+        });
+
+	}
+
+    inferDocumentProperties(event) {
+	    let tmp = "";
+        for (var i = 0; i < this.state.examplePages.length-1; i++) {
+            if (this.state.examplePages[i].url != url) {
+                tmp+=this.state.examplePages[i]["ser"]+"_oOo_";
+            }
+            tmp+=this.state.examplePages[this.state.examplePages.length-1];
+        }
+        let fileUrl = this.baseUrl+ "inferPageType/" + tmp;
         axios.get(fileUrl)
             .then((response)=>{
                 let queries = response.data;
@@ -246,7 +274,7 @@ class SearchArea extends Component {
             .catch(error =>{
                 console.log(error)
             })
-	}
+    }
 
 	searchClickHandler(event){
 
@@ -468,8 +496,8 @@ class SearchArea extends Component {
                                 <div className="ui top left attached label clip-text"><a href={item._source.url}>{item._source.url}</a></div>
                                 <div><img src={this.baseUrl + "screenshots/" + crypto.createHash('md5').update(item._source.url).digest('hex') + ".png"} style={{width:'100%'}} alt="Image not found"/></div>
                                 <div className="meta es-more-like-this">
-                                    <input type="checkbox" name={crypto.createHash('md5').update(item._source.url).digest('hex')}/>
-                                    <a href="#" onClick={this.handleClickingMoreLikeThis} className="es-more-like-this-btn"> More This Type Of Page </a>
+                                    <input type="checkbox" onClick={this.handleClickingMoreLikeThis.bind(this, this.baseUrl + "screenshots/" + crypto.createHash('md5').update(item._source.url).digest('hex') + ".png", item._source.text.split("_DO_LOAD_SERIALIZED_FILE_")[1],item._source.url)}/>
+                                    <span className="es-more-like-this-btn"> More This Type Of Page </span>
                                 </div>
                                 <div className="header docheader">
                                     {item._source.title}
@@ -484,7 +512,6 @@ class SearchArea extends Component {
                             </div>
                         </div>
 					)}
-				 	{phyDoc}
 				 	</div>
    		);
 
@@ -731,7 +758,7 @@ class SearchArea extends Component {
                                     <Grid columns={2} >
                                         <Grid.Column width={4}>
                                             <div className="ui card resultcard">
-                                                <div id="es-side-header" className="ui top attached label" >Filters</div>
+                                                <div id="es-side-header" className="ui top attached label" >Properties of Page Results</div>
                                                 <div id="es-side-filters">
                                                     <IntegrationAutosuggestDocument onEnter={this.searchClickHandler} onUpdateValue={this.handleUpdateValueForDoc} searchValues={this.state.searchConditionsForDoc} />
                                                 </div>
@@ -769,6 +796,24 @@ class SearchArea extends Component {
 					)
 
 				}
+				{/*footer*/}
+                {
+                    (this.state.examplePages.length > 0)?
+                    (<div id="es-more-like-this-footer">
+                        {this.state.examplePages.map((item,i)=>
+                            <div className="table-cell">
+                                <img key={i} src={item["img"]} className="">
+                                </img>
+                            </div>
+                        )}
+                        <div className="table-cell">
+                            <Button id="inferDocumentPropertiesBtn" color='grey' onClick = {this.inferDocumentProperties.bind(this)}>
+                                Infer From These Examples
+                            </Button>
+                        </div>
+                    </div>): (<div></div>)
+                }
+
 			</div>
 		)
 	
