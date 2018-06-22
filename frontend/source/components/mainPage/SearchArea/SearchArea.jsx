@@ -60,8 +60,8 @@ class SearchArea extends Component {
 		this.resetComponent = this.resetComponent.bind(this);
 	
 		
-		//this.baseUrl = 'http://crow.cs.illinois.edu:1720/';
-		this.baseUrl = 'http://localhost:1720/';
+		this.baseUrl = 'http://crow.cs.illinois.edu:1720/';
+		//this.baseUrl = 'http://localhost:1720/';
 		this.searchClickHandler = this.searchClickHandler.bind(this);
 		this.ClusterHandler = this.ClusterHandler.bind(this);
 
@@ -255,16 +255,15 @@ class SearchArea extends Component {
 	}
 
     inferDocumentProperties(event) {
-	    let tmp = "";
+        let tmp = this.state.searchEntity.trim().split(" ").join("+").split("#").join("$") + "_oOo_";
         for (var i = 0; i < this.state.examplePages.length-1; i++) {
-            if (this.state.examplePages[i].url != url) {
-                tmp+=this.state.examplePages[i]["ser"]+"_oOo_";
-            }
-            tmp+=this.state.examplePages[this.state.examplePages.length-1];
+            tmp += this.state.examplePages[i]["ser"] + "_oOo_";
         }
-        let fileUrl = this.baseUrl+ "inferPageType/" + tmp;
-        axios.get(fileUrl)
-            .then((response)=>{
+        tmp+=this.state.examplePages[this.state.examplePages.length-1]["ser"];
+        let fileUrl = this.baseUrl+ "inferPageType" + "?info=" + tmp;
+        console.log(fileUrl);
+        axios.get(fileUrl
+        ).then((response)=>{
                 let queries = response.data;
                 console.log(queries);
                 this.setState({
@@ -801,8 +800,8 @@ class SearchArea extends Component {
                     (this.state.examplePages.length > 0)?
                     (<div id="es-more-like-this-footer">
                         {this.state.examplePages.map((item,i)=>
-                            <div className="table-cell">
-                                <img key={i} src={item["img"]} className="">
+                            <div key={i} className="table-cell">
+                                <img src={item["img"]}>
                                 </img>
                             </div>
                         )}

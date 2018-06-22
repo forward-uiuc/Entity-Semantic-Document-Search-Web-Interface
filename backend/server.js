@@ -4,11 +4,15 @@
 
 //List the packages 
 var express = require('express');
+const { exec } = require('child_process');
 var router = express.Router();
 var bodyParser = require('body-parser');
 var fs = require('fs');
 //Create the express application
 var app = express();
+
+// const util = require('util');
+// const exec = util.promisify(require('child_process').exec);
 
 
 // Allow CORS so that backend and frontend could be put on different servers
@@ -136,12 +140,47 @@ app.get('/getPhysicalDoc/:fileName',function(req,res){
 })
 
 //add an api to read the physical doc files
-app.get('/inferPageType/:fileNames',function(req,res){
-    var str = req.params.fileNames;
-    var fileNames = str.split("_");
+app.get('/inferPageType',function(req,res){
+	// console.log(req.query.info);
+	var serFiles = req.query.info.split("_oOo_");
+	//var tmp = ["#person mining"];
+	var tmp = serFiles;
+	//tmp.push(...serFiles);
+	tmp[0] = tmp[0].split("+").join(" ").split("$").join("#");
+	console.log(tmp);
+    let aCommand = 'java -cp /entitysearch/entity_search/uber-EntityAnnotation-1.0-SNAPSHOT.jar org.forward.entitysearch.experiment.FindCommonPatternsInDocuments';
+	//let aCommand = 'java -cp /Users/longpham/Workspace/EntityAnnotation/target/uber-EntityAnnotation-1.0-SNAPSHOT.jar org.forward.entitysearch.experiment.FindCommonPatternsInDocuments';
+	for (var i = 0; i < tmp.length; i++) {
+		aCommand += ' "' + tmp[i] + '"';
+	}
+	console.log(aCommand);
+    exec(aCommand, (err, stdout, stderr) => {
+        if (err) {
+            // node couldn't execute the command
+			console.log(err);
+            return;
+        }
+
+        // the *entire* stdout and stderr (buffered)
+        // console.log(`stderr: ${stderr}`);
+        let output = `${stdout}`;
+        // console.log(output);
+        let queries = eval(output);
+        console.log(queries);
+        // var queries = ["@near ( #professor #email champaign )"];
+        // var queries = ["@near ( #person #organization )","@near ( #number #person )","@near ( #date #person )","@near ( mining #date )","@near ( #person #location )","@near ( #location #person )","@near ( #misc #person )","@near ( #organization #person )","@near ( #person #misc )","@near ( #person #date )"]
+        res.send(queries);
+    });
+    // async function ls() {
+    //     const { output, stderr } = await exec(aCommand);
+    //     console.log('stdout:', output);
+    //     console.log('stderr:', stderr);
+    // }
+    // var tmp = ls();
+    // var queries = eval(output);
     // var queries = ["@near ( #professor #email champaign )"];
-	var queries = ["@near ( #person #organization )","@near ( #number #person )","@near ( #date #person )","@near ( mining #date )","@near ( #person #location )","@near ( #location #person )","@near ( #misc #person )","@near ( #organization #person )","@near ( #person #misc )","@near ( #person #date )"]
-    res.send(queries);
+	// var queries = ["@near ( #person #organization )","@near ( #number #person )","@near ( #date #person )","@near ( mining #date )","@near ( #person #location )","@near ( #location #person )","@near ( #misc #person )","@near ( #organization #person )","@near ( #person #misc )","@near ( #person #date )"]
+    // res.send(queries);
 });
 
 //set port
