@@ -132,7 +132,7 @@ const styles = theme => ({
   },
   textFieldRoot: {
     padding: '0px 15px 0px 0px',
-    width: '215%',
+    width: '100%'
   },
   textFieldInput: {
     borderRadius: 4,
@@ -140,7 +140,7 @@ const styles = theme => ({
     border: '1px solid #ced4da',
     fontSize: 16,
     padding: '10px 20px 10px 30px',
-    width: '180%',
+    width: '500px',
     transition: theme.transitions.create(['border-color', 'box-shadow']),
     '&:focus': {
       borderColor: '#80bdff',

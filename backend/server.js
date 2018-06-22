@@ -139,7 +139,8 @@ app.get('/getPhysicalDoc/:fileName',function(req,res){
 app.get('/inferPageType/:fileNames',function(req,res){
     var str = req.params.fileNames;
     var fileNames = str.split("_");
-    var queries = ["@near ( #professor #email champaign)"];
+    // var queries = ["@near ( #professor #email champaign )"];
+	var queries = ["@near ( #person #organization )","@near ( #number #person )","@near ( #date #person )","@near ( mining #date )","@near ( #person #location )","@near ( #location #person )","@near ( #misc #person )","@near ( #organization #person )","@near ( #person #misc )","@near ( #person #date )"]
     res.send(queries);
 });
 

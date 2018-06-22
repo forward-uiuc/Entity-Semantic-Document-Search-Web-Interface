@@ -59,8 +59,8 @@ class SearchArea extends Component {
 		this.resetComponent = this.resetComponent.bind(this);
 	
 		
-		this.baseUrl = 'http://crow.cs.illinois.edu:1720/';
-		//this.baseUrl = 'http://localhost:1720/';
+		//this.baseUrl = 'http://crow.cs.illinois.edu:1720/';
+		this.baseUrl = 'http://localhost:1720/';
 		this.searchClickHandler = this.searchClickHandler.bind(this);
 		this.ClusterHandler = this.ClusterHandler.bind(this);
 
@@ -462,95 +462,176 @@ class SearchArea extends Component {
    		let DocumentResult=(
 			
    					<div className="docblock">
-				 	{output.map((item,i)=> 
-
-							<Grid key={i} columns='equal'>
-								<Grid.Column width={6}>
-                                    <img src={this.baseUrl + "screenshots/" + crypto.createHash('md5').update(item._source.url).digest('hex') + ".png"} style={{width:'100%'}} alt="Image not found"/>
-								</Grid.Column>
-                                <Grid.Column width={10}>
-                                    <div className="ui card padded clustercard raised">
-										<div className="content">
-
-											<div className="ui top left attached label"><a href={item._source.url}>{item._source.url}</a></div>
-											<div className="header docheader">
-												{item._source.title}
-											</div>
-											<div className="description resultText">
-												{/*
-										<span>{item._source.text.substr(0,item._source.charOffset)}</span>
-										<span className="highlight">{item._source.text.substr(item._source.charOffset,item._source.name.length)}</span>
-										<span>{item._source.text.substr(parseInt(item._source.charOffset)+parseInt(item._source.name.length))}</span>
-										<span><a onClick={this.phyDocHandler.bind(this,item._source.name,item._source.text)}> read more..</a></span>
-										*/}
-												{/* <span>{item._source.text.substr(0,200)}</span>*/}
-											</div>
-											<div className="meta">score:&nbsp;{item._score}</div>
-											<div className="meta es-more-like-this">
-                                                <input type="checkbox" name={crypto.createHash('md5').update(item._source.url).digest('hex')}/>
-                                                <a href="#" onClick={this.handleClickingMoreLikeThis} className="es-more-like-this-btn"> More Like This </a>
-											</div>
-										</div>
-                                    </div>
-                                </Grid.Column>
-							</Grid>
+				 	{output.map((item,i)=>
+                        <div key={i} className="ui card padded clustercard raised">
+                            <div className="content">
+                                <div className="ui top left attached label clip-text"><a href={item._source.url}>{item._source.url}</a></div>
+                                <div><img src={this.baseUrl + "screenshots/" + crypto.createHash('md5').update(item._source.url).digest('hex') + ".png"} style={{width:'100%'}} alt="Image not found"/></div>
+                                <div className="meta es-more-like-this">
+                                    <input type="checkbox" name={crypto.createHash('md5').update(item._source.url).digest('hex')}/>
+                                    <a href="#" onClick={this.handleClickingMoreLikeThis} className="es-more-like-this-btn"> More This Type Of Page </a>
+                                </div>
+                                <div className="header docheader">
+                                    {item._source.title}
+                                </div>
+                                {/*<div className="description resultText">*/}
+                                    {/*<span>{item._source.text.substr(0,item._source.charOffset)}</span>*/}
+                                    {/*<span className="highlight">{item._source.text.substr(item._source.charOffset,item._source.name.length)}</span>*/}
+                                    {/*<span>{item._source.text.substr(parseInt(item._source.charOffset)+parseInt(item._source.name.length))}</span>*/}
+                                    {/*<span><a onClick={this.phyDocHandler.bind(this,item._source.name,item._source.text)}> read more..</a></span>*/}
+                                {/*</div>*/}
+                                <div className="meta">score:&nbsp;{item._score}</div>
+                            </div>
+                        </div>
 					)}
 				 	{phyDoc}
 				 	</div>
    		);
 
+        let documentation = (
+            <Container className="searchbar">
+                <Modal
+                    trigger={<a onClick={this.handleOpen}>Documentation</a>}
+                    open={this.state.modalOpen}
+                    onClose={this.handleClose}
+                    basic
+                    size='small'
+                >
+                    <Modal.Content>
+                        <img style={{width:'100%'}} src="./assets/documentation.png"/>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button color='green' onClick={this.handleClose} inverted>
+                            <Icon name='checkmark' /> Got it
+                        </Button>
+                    </Modal.Actions>
+                </Modal>
+            </Container>
+        );
+
+        let sampleQueries = (
+            <div className="ui compact menu">
+                <div className="ui simple dropdown item">
+                    Sample Queries
+                    <i className="dropdown icon"></i>
+                    <div className="menu">
+                        <div className="item">
+                            <Header as='h4'
+                                    onClick={this.handleExampleQueryForDoc.bind(this,["@near ( #person #email )", "@near ( #person #phone )"], "#person data mining")}>
+                                Search for professor home pages with interest in data mining
+                            </Header>
+                        </div>
+                        <div className="item">
+                            <Header as='h4'
+                                    onClick={this.handleExampleQueryForDoc.bind(this,["@near ( #professor #phone #topic )"], "#person biology")}>
+                                Search for CS professor home pages with work related to biology domain
+                            </Header>
+                        </div>
+                        <div className="item">
+                            <Header as='h4'
+                                    onClick={this.handleExampleQueryForDoc.bind(this,["@contains ( hours #professor )"], "mining")}>
+                                Search for CS courses related to data mining
+                            </Header>
+                        </div>
+                        <div className="item">
+                            <Header as='h4'
+                                    onClick={this.handleExampleQueryForDoc.bind(this,["@near ( #person #email )", "@near ( #number hours )"], "machine learning")}>
+                                Search for CS courses related to Machine Learning
+                            </Header>
+                        </div>
+                        <div className="item">
+                            <Modal
+                                trigger={<a onClick={this.handleOpen}>Documentation</a>}
+                                open={this.state.modalOpen}
+                                onClose={this.handleClose}
+                                basic
+                                size='small'
+                            >
+                                <Modal.Content>
+                                    <img style={{width:'100%'}} src="./assets/documentation.png"/>
+                                </Modal.Content>
+                                <Modal.Actions>
+                                    <Button color='green' onClick={this.handleClose} inverted>
+                                        <Icon name='checkmark' /> Got it
+                                    </Button>
+                                </Modal.Actions>
+                            </Modal>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
    		let searchBar = (
    			<Container className="searchbar">
-				<Grid columns='equal'>
+
 					
 		     		{(searchbyItem === 'entity')?
 		     		(
-		     		<Grid.Column width={9}>
-		     			<div> Specify entities and describe their contexts by keywords: </div>
-		     			<IntegrationAutosuggest getSearchValue={this.getSearchValue} onEnter={this.searchClickHandler} onUpdateValue={this.handleUpdateValue} searchValue={this.state.searchEntity} />
-		     		</Grid.Column>
+                        <Grid columns='equal'>
+                            <Grid.Column width={9}>
+                                <div> Specify entities and describe their contexts by keywords: </div>
+                                <IntegrationAutosuggest getSearchValue={this.getSearchValue} onEnter={this.searchClickHandler} onUpdateValue={this.handleUpdateValue} searchValue={this.state.searchEntity} />
+                            </Grid.Column>
+                                <Grid.Column width={7}>
+                                    <button className="ui icon button" role="button" onClick={this.searchClickHandler}>
+                                <i aria-hidden="true" className="search icon"></i>
+                                Search
+                                </button>
+
+                            {/*<Dropdown floating labeled button className='icon' text='Choose Search Type'>
+                                    <Dropdown.Menu>
+                                        <Dropdown.Item name='entity' active={searchbyItem === 'entity'} onClick={this.handleMenuItemClick} >
+                                            Entity Search
+                                        </Dropdown.Item>
+                                        <Dropdown.Item name='doc' active={searchbyItem  === 'doc'} onClick={this.handleMenuItemClick} >
+                                            Entity-semantic Document Search
+                                        </Dropdown.Item>
+                                    </Dropdown.Menu>
+                                </Dropdown>*/}
+                            {/*showDocument ?
+                                    (<Button className="clusterbutton" onClick={this.showDocumentHandler} disabled={searchbyItem === 'doc'}>
+                                        Hide Document
+                                    </Button>)
+                                    :
+                                    (<Button className="clusterbutton" onClick={this.showDocumentHandler} disabled={searchbyItem === 'doc'}>
+                                        Show Document
+                                    </Button>)*/
+                            }
+                                </Grid.Column>
+                        </Grid>
 		     		):
 		     		(
-		     		<Grid.Column width={9}>
-                        <div> Describe the target page by keywords and entities: </div>
-                        <IntegrationAutosuggest getSearchValue={this.getSearchValue} onEnter={this.searchClickHandler} onUpdateValue={this.handleUpdateValue} searchValue={this.state.searchEntity} />
+		     		<table>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <IntegrationAutosuggest getSearchValue={this.getSearchValue} onEnter={this.searchClickHandler} onUpdateValue={this.handleUpdateValue} searchValue={this.state.searchEntity} />
+                                </td>
+                                <td>
+                                    {sampleQueries}
+                                </td>
+                                <td>
+                                    <button className="ui icon button" role="button" onClick={this.searchClickHandler}>
+                                        <i aria-hidden="true" className="search icon"></i>
+                                        Search
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        {/*<div> Describe the target page by keywords and entities: </div>*/}
 
-						{(this.state.searchConditionsForDoc.length > 0)?
-							(<div> Describe the type of target page: </div>):
-							(<div></div>)
-						}
-                        <IntegrationAutosuggestDocument onEnter={this.searchClickHandler} onUpdateValue={this.handleUpdateValueForDoc} searchValues={this.state.searchConditionsForDoc} />
-		     		</Grid.Column>
+						{/*{(this.state.searchConditionsForDoc.length > 0)?*/}
+							{/*(<div> Describe the type of target page: </div>):*/}
+							{/*(<div></div>)*/}
+						{/*}*/}
+                        {/*<IntegrationAutosuggestDocument onEnter={this.searchClickHandler} onUpdateValue={this.handleUpdateValueForDoc} searchValues={this.state.searchConditionsForDoc} />*/}
+		     		</table>
 		     		)}
 		     		
 
-					<Grid.Column width={7}>
-						<button className="ui icon button" role="button" onClick={this.searchClickHandler}>
-							<i aria-hidden="true" className="search icon"></i>
-							Search
-						</button>
 
-						{/*<Dropdown floating labeled button className='icon' text='Choose Search Type'>
-						    <Dropdown.Menu>
-							    <Dropdown.Item name='entity' active={searchbyItem === 'entity'} onClick={this.handleMenuItemClick} >
-							    	Entity Search
-							    </Dropdown.Item>
-							    <Dropdown.Item name='doc' active={searchbyItem  === 'doc'} onClick={this.handleMenuItemClick} >
-							    	Entity-semantic Document Search
-							    </Dropdown.Item>
-						    </Dropdown.Menu>
-						</Dropdown>*/}
-						{/*showDocument ?
-							(<Button className="clusterbutton" onClick={this.showDocumentHandler} disabled={searchbyItem === 'doc'}>
-								Hide Document
- 							</Button>)
- 							:
- 							(<Button className="clusterbutton" onClick={this.showDocumentHandler} disabled={searchbyItem === 'doc'}>
-								Show Document
- 							</Button>)*/
-							}	
-					</Grid.Column>
-				</Grid>
+
 			</Container>
    		);
 
@@ -605,72 +686,17 @@ class SearchArea extends Component {
    		)
    		:
    		(
-   		<Container className="searchbar">
-   					<Header size='small'>Example Queries for Entity Semantic Document Search</Header>
-   				  	<Grid columns='equal'>
-					    <Grid.Row className="example">
-					      	<Grid.Column>
-					       		<Header as='h4' 
-					       				color='red'
-					       				onClick={this.handleExampleQueryForDoc.bind(this,["@near ( #person #email )", "@near ( #person #phone )"], "#person data mining")}>
-					       				Search for professor home pages with interest in data mining
-					       		</Header> 
-					     	</Grid.Column>
-					    </Grid.Row>
-						<Grid.Row className="example">
-					      	<Grid.Column>
-								<Header as='h4' color='orange' 
-										onClick={this.handleExampleQueryForDoc.bind(this,["@near ( #professor #phone #topic )"], "#person biology")}>
-										Search for CS professor home pages with work related to biology domain
-								</Header>  						       		
-					      	</Grid.Column>
-					    </Grid.Row>
-					    <Grid.Row className="example">
-						      <Grid.Column>
-						      	 	<Header as='h4' 
-						      	 	 		color='teal'
-						      	 	 		onClick={this.handleExampleQueryForDoc.bind(this,["@contains ( hours #professor )"], "mining")}>
-						      	 	 		Search for CS courses related to data mining
-						      	 	</Header>
-						      </Grid.Column>
-						</Grid.Row>
-						<Grid.Row className="example">
-						      <Grid.Column>
-						       		<Header as='h4' 
-						       				color='blue'
-						       				onClick={this.handleExampleQueryForDoc.bind(this,["@near ( #person #email )", "@near ( #number hours )"], "machine learning")}>
-											Search for CS courses related to Machine Learning
-						       		</Header>
-						      </Grid.Column>						      		
-						</Grid.Row>
-					</Grid>
-   			</Container>
-   		)
-   		let documentation = (
-   			<Container className="searchbar">
-			   	<Modal
-        			trigger={<a onClick={this.handleOpen}>Documentation</a>}
-			        open={this.state.modalOpen}
-			        onClose={this.handleClose}
-			        basic
-			        size='small'
-      			>
-        <Modal.Content>
-          <img style={{width:'100%'}} src="./assets/documentation.png"/>
-        </Modal.Content>
-        <Modal.Actions>
-          <Button color='green' onClick={this.handleClose} inverted>
-            <Icon name='checkmark' /> Got it
-          </Button>
-        </Modal.Actions>
-      </Modal>
-   			</Container>
+   		<span></span>
    		);
 
 		return(
 			<div className = "SearchArea">
 				{searchBar}
-                {documentation}
+                {
+                    searchbyItem === 'entity' ?
+                        <span>{documentation}</span>:
+                        <span></span>
+                }
 				{suggestInput}
 				{
 					hits.length != 0 ? 
@@ -701,16 +727,28 @@ class SearchArea extends Component {
 							 		</Grid>
 								</Container>
 								:
-								<Grid.Column width={16}>
-                                    <div className="ui card resultcard">
-                                        <div>Found {output.length} relevant documents</div>
-                                    </div>
-									<div className="ui resultcard">
-										<div className="content ">
-				 							 {DocumentResult}
-				 						</div>
-				 					</div>	
-								</Grid.Column>
+                                <Container className ="searchResult">
+                                    <Grid columns={2} >
+                                        <Grid.Column width={4}>
+                                            <div className="ui card resultcard">
+                                                <div id="es-side-header" className="ui top attached label" >Filters</div>
+                                                <div id="es-side-filters">
+                                                    <IntegrationAutosuggestDocument onEnter={this.searchClickHandler} onUpdateValue={this.handleUpdateValueForDoc} searchValues={this.state.searchConditionsForDoc} />
+                                                </div>
+                                            </div>
+                                        </Grid.Column>
+                                        <Grid.Column width={12}>
+
+                                            <div>Found {output.length} relevant documents</div>
+
+                                            <div className="ui resultcard">
+                                                <div className="content ">
+                                                     {DocumentResult}
+                                                </div>
+                                            </div>
+                                        </Grid.Column>
+                                    </Grid>
+                                </Container>
 						)
 					: 
 					(
