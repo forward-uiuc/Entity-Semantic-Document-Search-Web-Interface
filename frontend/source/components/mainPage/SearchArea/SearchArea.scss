@@ -55,8 +55,8 @@
   .docheader {
     font-size: 1em !important;
     text-align: left;
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
+    padding-top: 0.4em;
+    padding-bottom: 0.4em;
   }
   .description {
     font-size: 1.3em !important;
@@ -95,6 +95,10 @@
     width:100%;
     white-space: nowrap;
   }
+
+  .es-pagination {
+    margin: auto;
+  }
 }
 
 .entityHeader {
@@ -124,6 +128,9 @@
 }
 
 .es-more-like-this {
+  position:absolute;
+  right:5px;
+  bottom:5px;
 }
 
 #es-side-header {
@@ -171,8 +178,14 @@
   }
 }
 
-#inferDocumentPropertiesBtn {
-  margin: auto;
+.inferDocumentPropertiesBtn {
   float: right;
+  div {
+    margin:10px 10px;
+  }
+}
+
+span.es-more-like-this-btn {
+  color:green;
 }
 

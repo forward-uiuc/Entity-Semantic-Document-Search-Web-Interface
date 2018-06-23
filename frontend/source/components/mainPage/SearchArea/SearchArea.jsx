@@ -3,12 +3,14 @@ import ReactDOM from 'react-dom'
 import _ from 'lodash'
 import styles from './SearchArea.scss';
 import TextField from 'material-ui/TextField';
-import { Button, Icon, Input,Select,Form,Radio,Grid, Modal, Header,Action,Label,Segment, Container,Dropdown, Menu, Sticky, Sidebar, SidebarPushable, SidebarPusher} from 'semantic-ui-react'
+import { Button, Icon, Input,Select,Form,Radio,Grid, Modal, Header,Action,Label,Segment, Container,Dropdown, Pagination} from 'semantic-ui-react'
 // import SearchList from './SearchList.jsx' 
 import ReactScrollableList from 'react-scrollable-list'
 import axios from 'axios'
 import IntegrationAutosuggest from './autosuggest.jsx'
 import IntegrationAutosuggestDocument from './autosuggestdocument.jsx'
+import PaginationExampleControlled from "./pagination.jsx";
+import SearchResult from "../SearchResult/SearchResult.jsx";
 
 var crypto = require('crypto');
 
@@ -52,6 +54,9 @@ class SearchArea extends Component {
 			//documentation
 			modalOpen: false,
 
+            paginationSize: 30,
+            paginationActive: 1,
+            paginationTotal:1,
 
 		}
 		this.handleResultSelect = this.handleResultSelect.bind(this);
@@ -275,6 +280,19 @@ class SearchArea extends Component {
             })
     }
 
+    clearPageExamples(event) {
+        this.setState({
+            examplePages: [],
+        });
+    }
+
+    handlePaginationChange(event) {
+	    var tmp = event.target.getAttribute("value");
+	    this.setState({
+            paginationActive: tmp,
+        });
+    }
+
 	searchClickHandler(event){
 
 		
@@ -487,27 +505,27 @@ class SearchArea extends Component {
 		);
 
    		let DocumentResult=(
-			
    					<div className="docblock">
-				 	{output.map((item,i)=>
-                        <div key={i} className="ui card padded clustercard raised">
+				 	{
+				 	    output
+                        .filter((item,i)=>
+                            (i >= (this.state.paginationActive-1)*this.state.paginationSize && i < this.state.paginationActive*this.state.paginationSize))
+                        .map((item,i)=>
+                        <div key={i+(this.state.paginationActive-1)*this.state.paginationSize} className="ui card padded clustercard raised">
                             <div className="content">
                                 <div className="ui top left attached label clip-text"><a href={item._source.url}>{item._source.url}</a></div>
                                 <div><img src={this.baseUrl + "screenshots/" + crypto.createHash('md5').update(item._source.url).digest('hex') + ".png"} style={{width:'100%'}} alt="Image not found"/></div>
-                                <div className="meta es-more-like-this">
-                                    <input type="checkbox" onClick={this.handleClickingMoreLikeThis.bind(this, this.baseUrl + "screenshots/" + crypto.createHash('md5').update(item._source.url).digest('hex') + ".png", item._source.text.split("_DO_LOAD_SERIALIZED_FILE_")[1],item._source.url)}/>
-                                    <span className="es-more-like-this-btn"> More This Type Of Page </span>
-                                </div>
                                 <div className="header docheader">
                                     {item._source.title}
                                 </div>
-                                {/*<div className="description resultText">*/}
-                                    {/*<span>{item._source.text.substr(0,item._source.charOffset)}</span>*/}
-                                    {/*<span className="highlight">{item._source.text.substr(item._source.charOffset,item._source.name.length)}</span>*/}
-                                    {/*<span>{item._source.text.substr(parseInt(item._source.charOffset)+parseInt(item._source.name.length))}</span>*/}
-                                    {/*<span><a onClick={this.phyDocHandler.bind(this,item._source.name,item._source.text)}> read more..</a></span>*/}
-                                {/*</div>*/}
-                                <div className="meta">score:&nbsp;{item._score}</div>
+                                <div className="meta">Score:&nbsp;{item._score.toPrecision(3)}</div>
+                                <div className="es-more-like-this ui bottom right attached label">
+                                    <label>
+                                        <span className="es-more-like-this-btn" >More This Type Of Page &nbsp;</span>
+                                        <input type="checkbox" onClick={this.handleClickingMoreLikeThis.bind(this, this.baseUrl + "screenshots/" + crypto.createHash('md5').update(item._source.url).digest('hex') + ".png", item._source.text.split("_DO_LOAD_SERIALIZED_FILE_")[1],item._source.url)}/>
+                                    </label>
+
+                                </div>
                             </div>
                         </div>
 					)}
@@ -654,12 +672,17 @@ class SearchArea extends Component {
                         {/*<IntegrationAutosuggestDocument onEnter={this.searchClickHandler} onUpdateValue={this.handleUpdateValueForDoc} searchValues={this.state.searchConditionsForDoc} />*/}
 		     		</table>
 		     		)}
-		     		
-
-
-
 			</Container>
    		);
+
+   		let myPagination = (
+            <Pagination
+                defaultActivePage={this.state.paginationActive}
+                onPageChange={this.handlePaginationChange.bind(this)}
+                totalPages={Math.ceil(output.length/this.state.paginationSize)}
+            >
+            </Pagination>
+        );
 
    		let suggestInput = (searchbyItem === 'entity')?(
 
@@ -772,6 +795,10 @@ class SearchArea extends Component {
                                                      {DocumentResult}
                                                 </div>
                                             </div>
+
+                                            <div className="es-pagination">
+                                                {myPagination}
+                                            </div>
                                         </Grid.Column>
                                     </Grid>
                                 </Container>
@@ -799,16 +826,27 @@ class SearchArea extends Component {
                 {
                     (this.state.examplePages.length > 0)?
                     (<div id="es-more-like-this-footer">
-                        {this.state.examplePages.map((item,i)=>
-                            <div key={i} className="table-cell">
-                                <img src={item["img"]}>
-                                </img>
-                            </div>
-                        )}
                         <div className="table-cell">
-                            <Button id="inferDocumentPropertiesBtn" color='grey' onClick = {this.inferDocumentProperties.bind(this)}>
-                                Infer From These Examples
-                            </Button>
+                            {this.state.examplePages.map((item,i)=>
+                                <span key={i}>
+                                    <img src={item["img"]}>
+                                    </img>
+                                </span>
+                            )}
+
+                            <span className="inferDocumentPropertiesBtn">
+                                <div>
+                                    <Button color='grey' onClick = {this.inferDocumentProperties.bind(this)}>
+                                        Infer From These Examples
+                                    </Button>
+                                </div>
+                                <div>
+                                    <Button color='grey' onClick = {this.clearPageExamples.bind(this)}>
+                                        Clear All
+                                    </Button>
+                                </div>
+                            </span>
+
                         </div>
                     </div>): (<div></div>)
                 }
