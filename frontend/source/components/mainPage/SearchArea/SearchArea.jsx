@@ -56,6 +56,8 @@ class SearchArea extends Component {
             paginationActive: 1,
             paginationTotal:1,
 
+            numOfHits:0,
+
 		}
 		this.handleResultSelect = this.handleResultSelect.bind(this);
 		this.inputChangeHandler = this.inputChangeHandler.bind(this);
@@ -120,7 +122,7 @@ class SearchArea extends Component {
 		this.setState({
 			currentEntity: name,
 			output:[]
-		})
+		});
 		console.log(`index: ${index}`);
 		console.log(`name: ${name}`);
 		let currentEntityArr = this.state.cluster[index]
@@ -132,7 +134,7 @@ class SearchArea extends Component {
 		for(let i = 0; i  < currentEntityArr.length; i++){
 			for(let j = 0; j < hits.length;j++){
 				if(hits[j]._id == currentEntityArr[i].id){
-					output.push(hits[j])
+					output.push(hits[j]);
 							// console.log(hits[j])
 												//get the post.txt name
 					let value = hits[j]._source.name;
@@ -363,6 +365,7 @@ class SearchArea extends Component {
 					//cluster: response.data.clusters,
 					hits: response.data.hits.hits,
 					output: output,
+                    numOfHits:response.data.hits.total,
 					//clusterExamples:output,
 
 				});
@@ -444,8 +447,9 @@ class SearchArea extends Component {
 			clusterExamples,
    			searchbyItem,
    			emptyResult,
-   			documentName
-   		} = this.state
+   			documentName,
+            numOfHits,
+   		} = this.state;
    		// console.log("tsting",documentName[0])
    		// console.log("testing",output);
    		// console.log(this.state.results.length)
@@ -797,7 +801,7 @@ class SearchArea extends Component {
                                         </Grid.Column>
                                         <Grid.Column width={12}>
 
-                                            <div>Found {output.length} relevant documents</div>
+                                            <div>Found {numOfHits} relevant documents</div>
 
                                             <div className="ui resultcard">
                                                 <div className="content ">
