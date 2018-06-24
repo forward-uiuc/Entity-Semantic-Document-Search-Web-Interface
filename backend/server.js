@@ -82,6 +82,18 @@ app.get('/search/:username',function(req,res){
 	  	});
 });
 
+function similarButNotTheSameURLs (url1, url2) {
+    let u1 = url1.split("#");
+    let u2 = url2.split("#");
+    let v1 = url1.split("?");
+    let v2 = url2.split("?");
+    return (u1 !== u2)
+		&& ((u1[0] === u2[0]) || (u1.length === 1 || u2.length === 1))
+        && ((v1[0] === v2[0]) || (v1.length === 1 || v2.length === 1));
+}
+
+
+
 //add an api endpoint to entity-semantic document search
 app.get('/esdocumentsearch/:query',function(req,res){
 	var query_string = req.params.query;
@@ -119,19 +131,18 @@ app.get('/esdocumentsearch/:query',function(req,res){
 
             for (var i = 0; i < hits.length; i++) {
                 if (i === 0
-					|| hits[i]["_score"] === hits[i-1]["_score"]
+					|| hits[i]["_score"] !== hits[i-1]["_score"]
 					|| hits[i]["_source"]["title"] !== hits[i-1]["_source"]["title"]
-					|| (hits[i]["_source"]["url"].split("#")[0] !== hits[i-1]["_source"]["url"].split("#")[0]
-						&& hits[i]["_source"]["url"].split("?")[0] !== hits[i-1]["_source"]["url"].split("?")[0])
+					|| !similarButNotTheSameURLs(hits[i]["_source"]["url"],hits[i-1]["_source"]["url"])
 				) {
                     newHits.push(hits[i]);
-                    // if (i>0 && i < 20) {
-                    	// console.log("====");
-                     //    console.log(hits[i]["_source"]["title"]);
-                     //    console.log(hits[i]["_source"]["title"] != hits[i-1]["_source"]["title"]);
-                     //    console.log(hits[i]["_source"]["url"].split("#")[0] !== hits[i-1]["_source"]["url"].split("#")[0]);
-                     //    console.log(hits[i]["_source"]["url"].split("?")[0] !== hits[i-1]["_source"]["url"].split("?")[0]);
-					// }
+                    if (i>0 && i < 20) {
+                    	console.log("====");
+                        console.log(hits[i]["_source"]["title"]);
+                        console.log(hits[i]["_score"] !== hits[i-1]["_score"]);
+                        console.log(hits[i]["_source"]["title"] !== hits[i-1]["_source"]["title"]);
+                        console.log(!similarButNotTheSameURLs(hits[i]["_source"]["url"],hits[i-1]["_source"]["url"]));
+					}
                 } else {
                     console.log("hello");
 				}
