@@ -864,7 +864,7 @@ class SearchArea extends Component {
 
                                 </div>
                             </div>
-                            <div style={{height:'150px'}}>
+                            <div style={{height:'170px'}}>
                                 {/*Should have used sticky position instead of fixed, but it is buggy so do this "patch"*/}
                             </div>
                         </div>
