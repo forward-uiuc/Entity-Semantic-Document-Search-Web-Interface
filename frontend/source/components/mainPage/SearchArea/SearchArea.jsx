@@ -9,8 +9,6 @@ import ReactScrollableList from 'react-scrollable-list'
 import axios from 'axios'
 import IntegrationAutosuggest from './autosuggest.jsx'
 import IntegrationAutosuggestDocument from './autosuggestdocument.jsx'
-import PaginationExampleControlled from "./pagination.jsx";
-import SearchResult from "../SearchResult/SearchResult.jsx";
 
 var crypto = require('crypto');
 
@@ -65,8 +63,8 @@ class SearchArea extends Component {
 		this.resetComponent = this.resetComponent.bind(this);
 	
 		
-		this.baseUrl = 'http://crow.cs.illinois.edu:1720/';
-		//this.baseUrl = 'http://localhost:1720/';
+		//this.baseUrl = 'http://crow.cs.illinois.edu:1720/';
+		this.baseUrl = 'http://localhost:1720/';
 		this.searchClickHandler = this.searchClickHandler.bind(this);
 		this.ClusterHandler = this.ClusterHandler.bind(this);
 
@@ -299,8 +297,19 @@ class SearchArea extends Component {
 		let entity = this.state.searchEntity;
 
 		let current_url = this.baseUrl + "search/" + entity;
+		//let sConditions = this.state.searchConditionsForDoc.join(" ");
+        let sConditions = "";
+        let sideFilters = document.getElementById("es-side-filters");
+        for (var i = 0; i < this.state.searchConditionsForDoc.length; i++) {
+            if (sideFilters == null || sideFilters.querySelector("input[name='filter-"+i+"']").checked) {
+                // when there is no sideFilters, the queries are probably sample queries
+                sConditions += this.state.searchConditionsForDoc[i] + " ";
+            }
+        }
+        sConditions = sConditions.trim();
+
 		if (this.state.searchbyItem !== 'entity') {
-			entity = "@contains ( " + this.state.searchEntity.trim() + " ) " + this.state.searchConditionsForDoc.join(" ");
+			entity = "@contains ( " + this.state.searchEntity.trim() + " ) " + sConditions;
 			current_url = this.baseUrl + "esdocumentsearch/" + entity;
 		}
 
@@ -825,30 +834,37 @@ class SearchArea extends Component {
 				{/*footer*/}
                 {
                     (this.state.examplePages.length > 0)?
-                    (<div id="es-more-like-this-footer">
-                        <div className="table-cell">
-                            {this.state.examplePages.map((item,i)=>
-                                <span key={i}>
-                                    <img src={item["img"]}>
-                                    </img>
-                                </span>
-                            )}
+                    (
+                        <div>
+                            <div id="es-more-like-this-footer">
+                                <div className="table-cell">
+                                    {this.state.examplePages.map((item,i)=>
+                                        <span key={i}>
+                                            <img src={item["img"]}>
+                                            </img>
+                                        </span>
+                                    )}
 
-                            <span className="inferDocumentPropertiesBtn">
-                                <div>
-                                    <Button color='grey' onClick = {this.inferDocumentProperties.bind(this)}>
-                                        Infer From These Examples
-                                    </Button>
-                                </div>
-                                <div>
-                                    <Button color='grey' onClick = {this.clearPageExamples.bind(this)}>
-                                        Clear All
-                                    </Button>
-                                </div>
-                            </span>
+                                    <span className="inferDocumentPropertiesBtn">
+                                        <div>
+                                            <Button color='grey' onClick = {this.inferDocumentProperties.bind(this)}>
+                                                Infer From These Examples
+                                            </Button>
+                                        </div>
+                                        <div>
+                                            <Button color='grey' onClick = {this.clearPageExamples.bind(this)}>
+                                                Clear All
+                                            </Button>
+                                        </div>
+                                    </span>
 
+                                </div>
+                            </div>
+                            <div style={{height:'150px'}}>
+                                {/*Should have used sticky position instead of fixed, but it is buggy so do this "patch"*/}
+                            </div>
                         </div>
-                    </div>): (<div></div>)
+                    ): (<div></div>)
                 }
 
 			</div>

@@ -114,11 +114,35 @@ app.get('/esdocumentsearch/:query',function(req,res){
 	axios.post(url,data,header)
 		.then((response)=>{
 			// console.log(JSON.stringify(response.data.hits.hits))
-			res.json(response.data)
+            let hits = response.data.hits.hits;
+            let newHits = [];
+
+            for (var i = 0; i < hits.length; i++) {
+                if (i === 0
+					|| hits[i]["_score"] !== hits[i-1]["_score"]
+					|| hits[i]["_source"]["title"] !== hits[i-1]["_source"]["title"]
+					|| (hits[i]["_source"]["url"].split("#")[0] !== hits[i-1]["_source"]["url"].split("#")[0]
+						&& hits[i]["_source"]["url"].split("?")[0] !== hits[i-1]["_source"]["url"].split("?")[0])
+				) {
+                    newHits.push(hits[i]);
+                    // if (i!=0) {
+                    	// console.log("====");
+                     //    console.log(hits[i]["_source"]["title"]);
+                     //    console.log(hits[i]["_source"]["title"] != hits[i-1]["_source"]["title"]);
+                     //    console.log(hits[i]["_source"]["url"].split("#")[0] !== hits[i-1]["_source"]["url"].split("#")[0]);
+                     //    console.log(hits[i]["_source"]["url"].split("?")[0] !== hits[i-1]["_source"]["url"].split("?")[0]);
+					// }
+                } else {
+                    console.log("hello");
+				}
+            }
+
+            response.data.hits.hits = newHits;
+
+			res.json(response.data);
 
 		}) .catch(error=>{
 			console.log(error)
-
 	  	});
 });
 
