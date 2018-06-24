@@ -119,7 +119,7 @@ app.get('/esdocumentsearch/:query',function(req,res){
 
             for (var i = 0; i < hits.length; i++) {
                 if (i === 0
-					|| hits[i-1]["_score"] === hits[i]["_score"]
+					|| hits[i]["_score"] === hits[i-1]["_score"]
 					|| hits[i]["_source"]["title"] !== hits[i-1]["_source"]["title"]
 					|| (hits[i]["_source"]["url"].split("#")[0] !== hits[i-1]["_source"]["url"].split("#")[0]
 						&& hits[i]["_source"]["url"].split("?")[0] !== hits[i-1]["_source"]["url"].split("?")[0])
