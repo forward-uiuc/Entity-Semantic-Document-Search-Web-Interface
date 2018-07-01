@@ -110,7 +110,8 @@ app.get('/esdocumentsearch/:query',function(req,res){
 	// query_string = query_string.replaceAll('_entity_','');
 	// let url = 'http://localhost:9200/entity_lucene_dinv_new_multiple/_search_with_clusters?pretty=true';
 	// let url = 'http://localhost:9200/entity_lucene_doc/_search_with_clusters?pretty=true';
-	let url = 'http://localhost:9200/test_annotation/_es_document_search?pretty=true';
+	// let url = 'http://localhost:9200/test_annotation/_es_document_search?pretty=true';
+    let url = 'http://localhost:9200/cs_departments_top_ten/_es_document_search?pretty=true';
 	// console.log(url)
 	let data ={
 		'search_request':{
